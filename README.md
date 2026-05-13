@@ -24,7 +24,7 @@ cd /path/to/sglangBM
 Make scripts executable once:
 
 ```bash
-chmod +x scripts/setup_gpu_host.sh scripts/launch_sglang_kimi.sh
+chmod +x scripts/setup_gpu_host.sh scripts/download_kimi.sh scripts/launch_sglang_kimi.sh
 ```
 
 ---
@@ -54,13 +54,31 @@ source .venv/bin/activate
 
 ---
 
-## 3. Start the SGLang server (keep this running)
+## 3. Download the model weights
+
+With the venv active, download Kimi-K2.6 to a local model directory:
+
+```bash
+source .venv/bin/activate
+export HF_TOKEN=...   # if needed for model download
+bash scripts/download_kimi.sh
+```
+
+By default, weights are written to `models/Kimi-K2.6`, and the serving script reads from that path. To use a different disk or mount, set `MODEL_DIR` during download and `MODEL_PATH` during launch:
+
+```bash
+MODEL_DIR=/workspace/models/Kimi-K2.6 bash scripts/download_kimi.sh
+MODEL_PATH=/workspace/models/Kimi-K2.6 bash scripts/launch_sglang_kimi.sh
+```
+
+---
+
+## 4. Start the SGLang server (keep this running)
 
 Use a **dedicated terminal** (Terminal A). With the venv active:
 
 ```bash
 source .venv/bin/activate
-export HF_TOKEN=...   # if needed for model download
 bash scripts/launch_sglang_kimi.sh
 ```
 
@@ -91,7 +109,7 @@ Wait until the server has finished loading and is accepting HTTP traffic.
 
 ---
 
-## 4. Run benchmarks (second terminal)
+## 5. Run benchmarks (second terminal)
 
 Open **Terminal B**, activate the same venv:
 
@@ -101,7 +119,7 @@ source .venv/bin/activate
 export HF_TOKEN=...   # only if the tokenizer download needs it
 ```
 
-### 4a. Full suite (recommended first run)
+### 5a. Full suite (recommended first run)
 
 Runs **latency** + **concurrency** + **sustained** workloads:
 
@@ -111,7 +129,7 @@ python -m sglang_bm.run_benchmark --output-dir results/run1 --track-gpu --snapsh
 
 `--snapshot-all-gpus` records **every** GPU’s VRAM/util via `nvidia-smi` at the start and end of the run (useful for 8-GPU capacity tables). `--track-gpu` samples **one** GPU index (default `0`) over time via NVML.
 
-### 4b. Run suites individually (same order as the table)
+### 5b. Run suites individually (same order as the table)
 
 1. **Single-user + long-context (TTFT / decode TPS vs prefill length)**
 
@@ -135,7 +153,7 @@ python -m sglang_bm.run_benchmark --output-dir results/run1 --track-gpu --snapsh
 
 ---
 
-## 5. Where results go
+## 6. Where results go
 
 Under `--output-dir` (default `results/`), each run writes timestamped JSON, for example:
 
@@ -150,7 +168,7 @@ Under `--output-dir` (default `results/`), each run writes timestamped JSON, for
 
 ---
 
-## 6. Common CLI flags
+## 7. Common CLI flags
 
 | Flag | Meaning |
 |------|---------|
@@ -173,13 +191,13 @@ python -m sglang_bm.run_benchmark full --help
 
 ---
 
-## 7. What is *not* simulated by default
+## 8. What is *not* simulated by default
 
 - **Multi-turn chat sessions** (growing `messages` history per user) are not the same as **many parallel single-turn** chats. The `concurrency` `chat` mode models concurrent *single-turn* users. Extend the harness if graders require explicit multi-turn KV growth.
 
 ---
 
-## 8. Quick troubleshooting
+## 9. Quick troubleshooting
 
 | Symptom | What to try |
 |---------|-------------|

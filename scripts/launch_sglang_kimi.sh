@@ -9,7 +9,8 @@
 # duplicating --quantization unless Moonshot's deployment guide requires it for your SGLang build.
 set -euo pipefail
 
-MODEL_PATH="${MODEL_PATH:-moonshotai/Kimi-K2.6}"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+MODEL_PATH="${MODEL_PATH:-${ROOT}/models/Kimi-K2.6}"
 HOST="${HOST:-0.0.0.0}"
 PORT="${PORT:-30000}"
 CONTEXT_LENGTH="${CONTEXT_LENGTH:-131072}"
