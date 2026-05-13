@@ -1,0 +1,10 @@
+# Benchmark client + analysis (install on the same machine as the server OR a driver machine).
+# Install PyTorch with CUDA *before* this file — see scripts/setup_gpu_host.sh
+openai>=1.40.0
+aiohttp>=3.9.0
+numpy>=1.26.0
+pandas>=2.0.0
+tqdm>=4.66.0
+nvidia-ml-py>=12.560.30
+transformers>=4.57.1,<5.0.0
+huggingface_hub>=0.24.0
