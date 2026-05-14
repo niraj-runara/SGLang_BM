@@ -1,0 +1,108 @@
+{
+  "suite": "latency_sweep",
+  "rows": [
+    {
+      "scenario": "latency_sweep",
+      "assignment_labels": [
+        "single_user_inference",
+        "short_prompt_up_to_1k"
+      ],
+      "prefill_tokens_target": 1024,
+      "prefill_tokens_actual": 1002,
+      "repeats": 3,
+      "ok_rate": 1.0,
+      "ttft_ms_mean": 304.46338436255854,
+      "ttft_ms_p99": 612.4168908782303,
+      "decode_tps": {
+        "mean": 64.79251457455663,
+        "p99": 64.94851731323244
+      },
+      "max_new_tokens": 128,
+      "vram_mib_idle": 88921.0,
+      "vram_mib_after": 89033.0
+    },
+    {
+      "scenario": "latency_sweep",
+      "assignment_labels": [
+        "single_user_inference",
+        "medium_prompt_up_to_8k"
+      ],
+      "prefill_tokens_target": 8192,
+      "prefill_tokens_actual": 8010,
+      "repeats": 3,
+      "ok_rate": 1.0,
+      "ttft_ms_mean": 1494.0031773100297,
+      "ttft_ms_p99": 3939.0027227811515,
+      "decode_tps": {
+        "mean": 41.94536553745572,
+        "p99": 42.026363669799885
+      },
+      "max_new_tokens": 128,
+      "vram_mib_idle": 88921.0,
+      "vram_mib_after": 90381.0
+    },
+    {
+      "scenario": "latency_sweep",
+      "assignment_labels": [
+        "single_user_inference",
+        "long_context_prompt_heavy_prefill",
+        "long_context_evaluation_32k"
+      ],
+      "prefill_tokens_target": 32768,
+      "prefill_tokens_actual": 32040,
+      "repeats": 3,
+      "ok_rate": 1.0,
+      "ttft_ms_mean": 6844.006476613383,
+      "ttft_ms_p99": 18771.90432857722,
+      "decode_tps": {
+        "mean": 18.17370953577832,
+        "p99": 18.184370214271713
+      },
+      "max_new_tokens": 128,
+      "vram_mib_idle": 88921.0,
+      "vram_mib_after": 91281.0
+    },
+    {
+      "scenario": "latency_sweep",
+      "assignment_labels": [
+        "single_user_inference",
+        "long_context_prompt_heavy_prefill",
+        "long_context_evaluation_64k"
+      ],
+      "prefill_tokens_target": 65536,
+      "prefill_tokens_actual": 64080,
+      "repeats": 3,
+      "ok_rate": 1.0,
+      "ttft_ms_mean": 13701.94824039936,
+      "ttft_ms_p99": 37449.661439061165,
+      "decode_tps": {
+        "mean": 10.054058012845621,
+        "p99": 10.06334182912249
+      },
+      "max_new_tokens": 128,
+      "vram_mib_idle": 88921.0,
+      "vram_mib_after": 91283.0
+    },
+    {
+      "scenario": "latency_sweep",
+      "assignment_labels": [
+        "single_user_inference",
+        "long_context_prompt_heavy_prefill",
+        "long_context_evaluation_128k"
+      ],
+      "prefill_tokens_target": 131072,
+      "prefill_tokens_actual": 128160,
+      "repeats": 3,
+      "ok_rate": 1.0,
+      "ttft_ms_mean": 45658.76306345066,
+      "ttft_ms_p99": 128616.56449219212,
+      "decode_tps": {
+        "mean": 5.423046212624833,
+        "p99": 5.425264503822717
+      },
+      "max_new_tokens": 128,
+      "vram_mib_idle": 88921.0,
+      "vram_mib_after": 91287.0
+    }
+  ]
+}

@@ -1,0 +1,132 @@
+{
+  "ts": "20260514-005404",
+  "assignment_platform": "8x NVIDIA RTX PRO 6000 (Blackwell), tensor-parallel default 8",
+  "gpu_device_index": 0,
+  "model": "moonshotai/Kimi-K2.6",
+  "base_url": "http://127.0.0.1:30000/v1",
+  "instant_mode": true,
+  "thinking_mode": false,
+  "framework": "SGLang",
+  "rubric_mapping": {
+    "single_user_inference": "latency suite; rows tagged short_prompt_up_to_1k | medium_prompt_up_to_8k | long_context_evaluation_*",
+    "multi_user_inference": "concurrency suite (chat|code|mixed) + sustained suite",
+    "gap": "Concurrent chat is single-turn per request, not multi-turn session history growth"
+  },
+  "server_parallelism_note": "Default launch uses TP_SIZE=8 across eight GPUs (one sharded replica).",
+  "gpus_all_at_start": [
+    {
+      "ts": 1778720044.5293076,
+      "index": 0,
+      "utilization_gpu_pct": 63.0,
+      "memory_used_mib": 88921.0,
+      "memory_total_mib": 97887.0
+    },
+    {
+      "ts": 1778720044.5293076,
+      "index": 1,
+      "utilization_gpu_pct": 96.0,
+      "memory_used_mib": 88269.0,
+      "memory_total_mib": 97887.0
+    },
+    {
+      "ts": 1778720044.5293076,
+      "index": 2,
+      "utilization_gpu_pct": 97.0,
+      "memory_used_mib": 88269.0,
+      "memory_total_mib": 97887.0
+    },
+    {
+      "ts": 1778720044.5293076,
+      "index": 3,
+      "utilization_gpu_pct": 68.0,
+      "memory_used_mib": 88269.0,
+      "memory_total_mib": 97887.0
+    },
+    {
+      "ts": 1778720044.5293076,
+      "index": 4,
+      "utilization_gpu_pct": 57.0,
+      "memory_used_mib": 88269.0,
+      "memory_total_mib": 97887.0
+    },
+    {
+      "ts": 1778720044.5293076,
+      "index": 5,
+      "utilization_gpu_pct": 97.0,
+      "memory_used_mib": 88269.0,
+      "memory_total_mib": 97887.0
+    },
+    {
+      "ts": 1778720044.5293076,
+      "index": 6,
+      "utilization_gpu_pct": 95.0,
+      "memory_used_mib": 88269.0,
+      "memory_total_mib": 97887.0
+    },
+    {
+      "ts": 1778720044.5293076,
+      "index": 7,
+      "utilization_gpu_pct": 95.0,
+      "memory_used_mib": 88269.0,
+      "memory_total_mib": 97887.0
+    }
+  ],
+  "gpus_all_at_end": [
+    {
+      "ts": 1778720697.9579513,
+      "index": 0,
+      "utilization_gpu_pct": 0.0,
+      "memory_used_mib": 91289.0,
+      "memory_total_mib": 97887.0
+    },
+    {
+      "ts": 1778720697.9579513,
+      "index": 1,
+      "utilization_gpu_pct": 0.0,
+      "memory_used_mib": 90637.0,
+      "memory_total_mib": 97887.0
+    },
+    {
+      "ts": 1778720697.9579513,
+      "index": 2,
+      "utilization_gpu_pct": 0.0,
+      "memory_used_mib": 90637.0,
+      "memory_total_mib": 97887.0
+    },
+    {
+      "ts": 1778720697.9579513,
+      "index": 3,
+      "utilization_gpu_pct": 0.0,
+      "memory_used_mib": 90637.0,
+      "memory_total_mib": 97887.0
+    },
+    {
+      "ts": 1778720697.9579513,
+      "index": 4,
+      "utilization_gpu_pct": 0.0,
+      "memory_used_mib": 90637.0,
+      "memory_total_mib": 97887.0
+    },
+    {
+      "ts": 1778720697.9579513,
+      "index": 5,
+      "utilization_gpu_pct": 0.0,
+      "memory_used_mib": 90637.0,
+      "memory_total_mib": 97887.0
+    },
+    {
+      "ts": 1778720697.9579513,
+      "index": 6,
+      "utilization_gpu_pct": 0.0,
+      "memory_used_mib": 90637.0,
+      "memory_total_mib": 97887.0
+    },
+    {
+      "ts": 1778720697.9579513,
+      "index": 7,
+      "utilization_gpu_pct": 0.0,
+      "memory_used_mib": 90637.0,
+      "memory_total_mib": 97887.0
+    }
+  ]
+}

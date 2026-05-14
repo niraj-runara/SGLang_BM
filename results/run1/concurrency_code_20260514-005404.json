@@ -1,0 +1,138 @@
+{
+  "suite": "concurrency_sweep",
+  "prefill_tokens": 4096,
+  "rows": [
+    {
+      "scenario": "concurrency_sweep",
+      "assignment_labels": [
+        "multi_user_inference",
+        "parallel_code_generation"
+      ],
+      "mode": "code",
+      "concurrency": 1,
+      "wall_s": 3.7583742532879114,
+      "ok": 1,
+      "errors_sample": [],
+      "total_completion_tokens": 256,
+      "system_tps_mean": 68.11455771762095,
+      "ttft_ms_mean": 114.31446205824614,
+      "ttft_ms_p99": 114.31446205824614,
+      "decode_tps_per_req": {
+        "mean": 70.2558783900539,
+        "p99": 70.2558783900539
+      },
+      "vram_mib_idle": 91287.0,
+      "vram_mib_peak_sample": 91287.0
+    },
+    {
+      "scenario": "concurrency_sweep",
+      "assignment_labels": [
+        "multi_user_inference",
+        "parallel_code_generation"
+      ],
+      "mode": "code",
+      "concurrency": 2,
+      "wall_s": 4.195156074129045,
+      "ok": 2,
+      "errors_sample": [],
+      "total_completion_tokens": 512,
+      "system_tps_mean": 122.04551891583584,
+      "ttft_ms_mean": 179.13885973393917,
+      "ttft_ms_p99": 182.75365114212036,
+      "decode_tps_per_req": {
+        "mean": 63.78523282127669,
+        "p99": 63.82209677252176
+      },
+      "vram_mib_idle": 91287.0,
+      "vram_mib_peak_sample": 91287.0
+    },
+    {
+      "scenario": "concurrency_sweep",
+      "assignment_labels": [
+        "multi_user_inference",
+        "parallel_code_generation"
+      ],
+      "mode": "code",
+      "concurrency": 4,
+      "wall_s": 4.823445129208267,
+      "ok": 4,
+      "errors_sample": [],
+      "total_completion_tokens": 1024,
+      "system_tps_mean": 212.29639242689635,
+      "ttft_ms_mean": 174.01902307756245,
+      "ttft_ms_p99": 177.59974339045584,
+      "decode_tps_per_req": {
+        "mean": 55.106513630037206,
+        "p99": 55.15991235196856
+      },
+      "vram_mib_idle": 91287.0,
+      "vram_mib_peak_sample": 91287.0
+    },
+    {
+      "scenario": "concurrency_sweep",
+      "assignment_labels": [
+        "multi_user_inference",
+        "parallel_code_generation"
+      ],
+      "mode": "code",
+      "concurrency": 8,
+      "wall_s": 6.448751723393798,
+      "ok": 8,
+      "errors_sample": [],
+      "total_completion_tokens": 2048,
+      "system_tps_mean": 317.58084166437635,
+      "ttft_ms_mean": 186.31674000062048,
+      "ttft_ms_p99": 191.68850261718035,
+      "decode_tps_per_req": {
+        "mean": 40.93257296655661,
+        "p99": 40.96157497688214
+      },
+      "vram_mib_idle": 91287.0,
+      "vram_mib_peak_sample": 91287.0
+    },
+    {
+      "scenario": "concurrency_sweep",
+      "assignment_labels": [
+        "multi_user_inference",
+        "parallel_code_generation"
+      ],
+      "mode": "code",
+      "concurrency": 16,
+      "wall_s": 9.487218379043043,
+      "ok": 16,
+      "errors_sample": [],
+      "total_completion_tokens": 4096,
+      "system_tps_mean": 431.73877066516474,
+      "ttft_ms_mean": 193.53735819458961,
+      "ttft_ms_p99": 201.91939235664904,
+      "decode_tps_per_req": {
+        "mean": 27.59343272219181,
+        "p99": 27.606266217264658
+      },
+      "vram_mib_idle": 91287.0,
+      "vram_mib_peak_sample": 91287.0
+    },
+    {
+      "scenario": "concurrency_sweep",
+      "assignment_labels": [
+        "multi_user_inference",
+        "parallel_code_generation"
+      ],
+      "mode": "code",
+      "concurrency": 32,
+      "wall_s": 15.519144583493471,
+      "ok": 32,
+      "errors_sample": [],
+      "total_completion_tokens": 8192,
+      "system_tps_mean": 527.8641458571889,
+      "ttft_ms_mean": 302.7146425738465,
+      "ttft_ms_p99": 314.7417837474495,
+      "decode_tps_per_req": {
+        "mean": 16.85649372700952,
+        "p99": 16.864338682684597
+      },
+      "vram_mib_idle": 91287.0,
+      "vram_mib_peak_sample": 91287.0
+    }
+  ]
+}

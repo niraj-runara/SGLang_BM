@@ -16,7 +16,7 @@ Run the steps **in order** on the GPU machine (or use two shells after setup).
 ---
 
 ## 1. Clone / enter the repo
-
+git clone https://github.com/niraj-runara/SGLang_BM.git
 ```bash
 cd /path/to/sglangBM
 ```

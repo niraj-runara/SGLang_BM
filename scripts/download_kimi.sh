@@ -10,14 +10,14 @@ MODEL_ID="${MODEL_ID:-moonshotai/Kimi-K2.6}"
 MODEL_DIR="${MODEL_DIR:-${ROOT}/models/Kimi-K2.6}"
 REVISION="${REVISION:-}"
 
-if [[ ! -x "$(command -v huggingface-cli)" ]]; then
-  echo "huggingface-cli not found. Activate the venv or run scripts/setup_gpu_host.sh first."
+if [[ ! -x "$(command -v hf)" ]]; then
+  echo "hf (Hugging Face CLI) not found. Activate the venv or run scripts/setup_gpu_host.sh first."
   exit 1
 fi
 
 mkdir -p "${MODEL_DIR}"
 
-DOWNLOAD=(huggingface-cli download "${MODEL_ID}" --local-dir "${MODEL_DIR}")
+DOWNLOAD=(hf download "${MODEL_ID}" --local-dir "${MODEL_DIR}")
 if [[ -n "${REVISION}" ]]; then
   DOWNLOAD+=(--revision "${REVISION}")
 fi

@@ -1,0 +1,18 @@
+{
+  "suite": "sustained",
+  "assignment_labels": [
+    "multi_user_inference",
+    "sustained_throughput_testing"
+  ],
+  "duration_s": 120.0,
+  "concurrency": 8,
+  "completed": 280,
+  "errors": 0,
+  "error_rate": 0.0,
+  "decode_tps": {
+    "mean": 38.98535631708171,
+    "p99": 39.94534901769646
+  },
+  "ttft_ms_mean": 185.52813059650362,
+  "ttft_ms_p99": 295.0979052204638
+}

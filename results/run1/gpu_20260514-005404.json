@@ -1,0 +1,10 @@
+{
+  "series_summary": {
+    "available": true,
+    "util_gpu_mean": 91.60199386503068,
+    "util_gpu_max": 100.0,
+    "mem_used_mib_mean": 91870.19938650307,
+    "mem_used_mib_max": 91925.25,
+    "mem_total_mib": 97887.0
+  }
+}
