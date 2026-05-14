@@ -164,7 +164,7 @@ Under `--output-dir` (default `results/`), each run writes timestamped JSON, for
 | `concurrency_<mode>_*.json` | Load sweep per mode (`mixed`, `chat`, `code`). |
 | `sustained_*.json` | Steady-load error rate and TPS aggregates. |
 | `gpu_*.json` | Optional NVML time series summary (`--track-gpu`). |
-| `summary_*.json` | Full roll-up: `meta`, all suite payloads under `suites`, optional `gpu` — see [§10](#10-result-files-reference). |
+| `summary_*.json` | Full roll-up: `meta`, all suite payloads under `suites`, optional `gpu` — see [§10](#10-sample-benchmark-results) for a tabulated sample run. |
 
 ---
 
@@ -209,55 +209,97 @@ python -m sglang_bm.run_benchmark full --help
 
 ---
 
-## 10. Result files reference
+## 10. Sample benchmark results
 
-Each benchmark invocation writes JSON under `--output-dir` using one shared timestamp, e.g. `20260514-005404`, so files from the same run share the same suffix.
+Values below are copied from one full harness run (`results/run1/`, timestamp **`20260514-005404`**). Re-run `python -m sglang_bm.run_benchmark … full` and refresh this section from the new JSON if you want the README to stay in sync with latest hardware.
 
-### 10.1 Output files (`full` + `--track-gpu` + `--snapshot-all-gpus`)
+**Run context (from `meta_20260514-005404.json`):** `moonshotai/Kimi-K2.6`, `http://127.0.0.1:30000/v1`, instant mode (thinking off), `8x NVIDIA RTX PRO 6000 (Blackwell), tensor-parallel default 8`, tracked GPU index **0**.
 
-| Filename pattern | Written when | What it contains |
-|------------------|----------------|------------------|
-| `meta_<ts>.json` | Every run; **updated twice** if `--snapshot-all-gpus` | Run metadata: `ts`, `model`, `base_url`, `instant_mode`, `thinking_mode`, `assignment_platform`, `gpu_device_index`, `rubric_mapping`, `server_parallelism_note`. With `--snapshot-all-gpus`: `gpus_all_at_start` (before suites) and `gpus_all_at_end` (after suites, same file overwritten). |
-| `latency_<ts>.json` | `latency` or `full` | One suite object: `suite` (`latency_sweep`), `rows[]` — per prefill target: TTFT, decode TPS, VRAM snapshots, `assignment_labels` per row. |
-| `concurrency_mixed_<ts>.json` | `concurrency` or `full` (default modes include `mixed`) | `suite` (`concurrency_sweep`), `prefill_tokens`, `rows[]` for **mixed** mode (long-prefill parallel load). |
-| `concurrency_chat_<ts>.json` | `concurrency` or `full` | Same shape; **chat** mode rows (`concurrent_chat_sessions` in rubric). |
-| `concurrency_code_<ts>.json` | `concurrency` or `full` | Same shape; **code** mode rows (`parallel_code_generation` in rubric). |
-| `sustained_<ts>.json` | `sustained` or `full` | Steady-load aggregate: duration, concurrency, completion count, error rate, decode TPS, TTFT stats, top-level `assignment_labels`. |
-| `gpu_<ts>.json` | Only with `--track-gpu` | NVML time-series summary for `--gpu-device`: `series_summary` (`util_gpu_mean/max`, `mem_used_mib_mean/max`, etc.). |
-| `summary_<ts>.json` | Every run | **Roll-up**: `meta` (final version after end snapshots), `suites[]` (latency + each concurrency + sustained objects), and `gpu` if `--track-gpu` was set. |
+### Single-user latency (`latency_20260514-005404.json`)
 
-**Partial runs:** `latency` writes only `meta_*`, `latency_*`, `summary_*` (and `gpu_*` if tracked). `concurrency` omits latency/sustained files. `sustained` omits latency/concurrency files. Only `full` produces all seven suite-related files plus one `summary_*`.
+| Rubric (labels) | Prefill target | Prefill actual | OK rate | TTFT mean (ms) | TTFT p99 (ms) | Decode TPS mean | Decode TPS p99 | VRAM after (MiB, GPU 0) |
+|-----------------|----------------:|---------------:|--------:|---------------:|--------------:|------------------:|---------------:|------------------------:|
+| short ≤1k | 1024 | 1002 | 1.00 | 304.46 | 612.42 | 64.79 | 64.95 | 89033 |
+| medium ≤8k | 8192 | 8010 | 1.00 | 1494.00 | 3939.00 | 41.95 | 42.03 | 90381 |
+| long prefill + **32k eval** | 32768 | 32040 | 1.00 | 6844.01 | 18771.90 | 18.17 | 18.18 | 91281 |
+| long prefill + **64k eval** | 65536 | 64080 | 1.00 | 13701.95 | 37449.66 | 10.05 | 10.06 | 91283 |
+| long prefill + **128k eval** | 131072 | 128160 | 1.00 | 45658.76 | 128616.56 | 5.42 | 5.43 | 91287 |
 
-### 10.2 Rubric scenario → where to look
+### Concurrency — mixed, prefill 4096 (`concurrency_mixed_20260514-005404.json`)
 
-Assignment-style scenarios map to **files** and to **`assignment_labels`** on rows (or on the sustained object).
+| Concurrency | OK reqs | Wall (s) | System TPS mean | TTFT mean (ms) | TTFT p99 (ms) | Decode TPS / req mean | Decode TPS / req p99 |
+|------------:|--------:|---------:|----------------:|---------------:|--------------:|----------------------:|---------------------:|
+| 1 | 1 | 3.32 | 45.14 | 162.34 | 162.34 | 52.41 | 52.41 |
+| 2 | 2 | 5.48 | 64.92 | 537.07 | 550.54 | 46.41 | 49.21 |
+| 4 | 4 | 6.32 | 108.23 | 668.89 | 1070.59 | 43.20 | 43.94 |
+| 8 | 8 | 9.46 | 148.99 | 1349.09 | 2225.57 | 33.63 | 36.06 |
+| 16 | 16 | 13.89 | 189.23 | 2659.45 | 4522.95 | 23.03 | 26.01 |
+| 32 | 32 | 24.13 | 232.23 | 5382.73 | 9605.31 | 15.27 | 17.86 |
 
-| Benchmarking scenario (rubric) | Primary file | How to locate in JSON |
-|--------------------------------|--------------|-------------------------|
-| **Single-user inference** — short prompts up to 1k | `latency_<ts>.json` | Row with `assignment_labels` containing `short_prompt_up_to_1k` (default target 1024). |
-| **Single-user inference** — medium prompts up to 8k | `latency_<ts>.json` | Row with `medium_prompt_up_to_8k` (default 8192). |
-| **Single-user inference** — long / heavy prefill | `latency_<ts>.json` | Row with `long_context_prompt_heavy_prefill` (large prefill targets in the sweep). |
-| **Long-context evaluation** — 32k class | `latency_<ts>.json` | Row with `long_context_evaluation_32k` (default prefill band includes 32768). |
-| **Long-context evaluation** — 64k class | `latency_<ts>.json` | Row with `long_context_evaluation_64k` (default 65536). |
-| **Long-context evaluation** — 128k class | `latency_<ts>.json` | Row with `long_context_evaluation_128k` (default 131072). |
-| **Multi-user inference** — concurrent chat sessions | `concurrency_chat_<ts>.json` | Each `rows[]` entry includes `concurrent_chat_sessions` in `assignment_labels`. |
-| **Multi-user inference** — parallel code generation | `concurrency_code_<ts>.json` | Rows include `parallel_code_generation`. |
-| **Multi-user inference** — parallel long-prefill / mixed load | `concurrency_mixed_<ts>.json` | Rows include `parallel_requests_long_prefill`. |
-| **Multi-user inference** — sustained throughput testing | `sustained_<ts>.json` | Top-level `assignment_labels` includes `sustained_throughput_testing`. |
-| **System metrics** — all GPUs at start/end | `meta_<ts>.json` (and `summary_<ts>.json` → `meta`) | Arrays `gpus_all_at_start`, `gpus_all_at_end` (requires `--snapshot-all-gpus`). |
-| **System metrics** — one GPU over time | `gpu_<ts>.json` | `series_summary` (requires `--track-gpu`). |
+### Concurrency — chat (`concurrency_chat_20260514-005404.json`)
 
-The same suite payloads appear inside `summary_<ts>.json` under `suites[]` (order: latency, then each concurrency mode in `--concurrency-modes` order, then sustained).
+| Concurrency | OK reqs | Wall (s) | System TPS mean | TTFT mean (ms) | TTFT p99 (ms) | Decode TPS / req mean | Decode TPS / req p99 |
+|------------:|--------:|---------:|----------------:|---------------:|--------------:|----------------------:|---------------------:|
+| 1 | 1 | 4.19 | 61.05 | 373.49 | 373.49 | 67.03 | 67.03 |
+| 2 | 2 | 4.68 | 109.31 | 400.11 | 402.57 | 59.78 | 59.80 |
+| 4 | 4 | 5.76 | 177.46 | 653.94 | 731.16 | 50.20 | 50.93 |
+| 8 | 8 | 7.27 | 276.59 | 454.86 | 480.94 | 37.57 | 37.73 |
+| 16 | 16 | 10.35 | 387.72 | 276.84 | 290.00 | 25.48 | 25.87 |
+| 32 | 32 | 16.35 | 493.08 | 284.73 | 297.33 | 15.95 | 16.03 |
 
-### 10.3 Top-level JSON shape per file
+### Concurrency — code (`concurrency_code_20260514-005404.json`)
 
-| File | Top-level keys (conceptually) |
-|------|-------------------------------|
-| `meta_<ts>.json` | Metadata fields listed in §10.1; optional `gpus_all_at_start` / `gpus_all_at_end`. |
-| `latency_<ts>.json` | `suite`, `rows`. |
-| `concurrency_*_<ts>.json` | `suite`, `prefill_tokens`, `rows`. |
-| `sustained_<ts>.json` | `suite`, `assignment_labels`, duration/concurrency counters, aggregates, `decode_tps`, TTFT fields. |
-| `gpu_<ts>.json` | `series_summary`. |
-| `summary_<ts>.json` | `meta`, `suites` (array of suite objects), optional `gpu`. |
+| Concurrency | OK reqs | Wall (s) | System TPS mean | TTFT mean (ms) | TTFT p99 (ms) | Decode TPS / req mean | Decode TPS / req p99 |
+|------------:|--------:|---------:|----------------:|---------------:|--------------:|----------------------:|---------------------:|
+| 1 | 1 | 3.76 | 68.11 | 114.31 | 114.31 | 70.26 | 70.26 |
+| 2 | 2 | 4.20 | 122.05 | 179.14 | 182.75 | 63.79 | 63.82 |
+| 4 | 4 | 4.82 | 212.30 | 174.02 | 177.60 | 55.11 | 55.16 |
+| 8 | 8 | 6.45 | 317.58 | 186.32 | 191.69 | 40.93 | 40.96 |
+| 16 | 16 | 9.49 | 431.74 | 193.54 | 201.92 | 27.59 | 27.61 |
+| 32 | 32 | 15.52 | 527.86 | 302.71 | 314.74 | 16.86 | 16.86 |
 
-For a single place to archive or share a **full** run, use **`summary_<ts>.json`** plus the standalone copies of each suite file (they are duplicates of the objects inside `suites[]`, written for easy diffing and smaller per-topic files).
+### Sustained (`sustained_20260514-005404.json`)
+
+| Duration (s) | Concurrency | Completed | Errors | Error rate | Decode TPS mean | Decode TPS p99 | TTFT mean (ms) | TTFT p99 (ms) |
+|---------------:|--------------:|----------:|-------:|-----------:|----------------:|---------------:|---------------:|--------------:|
+| 120 | 8 | 280 | 0 | 0.00 | 38.99 | 39.95 | 185.53 | 295.10 |
+
+### GPU time series — device 0 (`gpu_20260514-005404.json`)
+
+| Metric | Value |
+|--------|------:|
+| Util mean (%) | 91.60 |
+| Util max (%) | 100.0 |
+| Mem used mean (MiB) | 91870.2 |
+| Mem used max (MiB) | 91925.3 |
+| Mem total (MiB) | 97887 |
+
+### All GPUs — VRAM / util snapshot (`meta_20260514-005404.json`)
+
+**At start of run**
+
+| GPU | Util (%) | Mem used (MiB) | Mem total (MiB) |
+|----:|---------:|---------------:|----------------:|
+| 0 | 63 | 88921 | 97887 |
+| 1 | 96 | 88269 | 97887 |
+| 2 | 97 | 88269 | 97887 |
+| 3 | 68 | 88269 | 97887 |
+| 4 | 57 | 88269 | 97887 |
+| 5 | 97 | 88269 | 97887 |
+| 6 | 95 | 88269 | 97887 |
+| 7 | 95 | 88269 | 97887 |
+
+**At end of run**
+
+| GPU | Util (%) | Mem used (MiB) | Mem total (MiB) |
+|----:|---------:|---------------:|----------------:|
+| 0 | 0 | 91289 | 97887 |
+| 1 | 0 | 90637 | 97887 |
+| 2 | 0 | 90637 | 97887 |
+| 3 | 0 | 90637 | 97887 |
+| 4 | 0 | 90637 | 97887 |
+| 5 | 0 | 90637 | 97887 |
+| 6 | 0 | 90637 | 97887 |
+| 7 | 0 | 90637 | 97887 |
+
+Raw JSON for this run: `meta_*`, `latency_*`, `concurrency_*`, `sustained_*`, `gpu_*`, `summary_*` under `results/run1/`. File naming is summarized in [§6](#6-where-results-go).
