@@ -164,7 +164,7 @@ Under `--output-dir` (default `results/`), each run writes timestamped JSON, for
 | `concurrency_<mode>_*.json` | Load sweep per mode (`mixed`, `chat`, `code`). |
 | `sustained_*.json` | Steady-load error rate and TPS aggregates. |
 | `gpu_*.json` | Optional NVML time series summary (`--track-gpu`). |
-| `summary_*.json` | Combined pointer to suites. |
+| `summary_*.json` | Full roll-up: `meta`, all suite payloads under `suites`, optional `gpu` — see [§10](#10-result-files-reference). |
 
 ---
 
@@ -206,3 +206,58 @@ python -m sglang_bm.run_benchmark full --help
 | Tokenizer / model download fails | `export HF_TOKEN=...`, check disk and network. |
 | Benchmark cannot connect | Confirm server URL/port and firewall; match `--base-url`. |
 | `sglang[all]` install fails | Script falls back to `pip install sglang`; install extras per SGLang docs. |
+
+---
+
+## 10. Result files reference
+
+Each benchmark invocation writes JSON under `--output-dir` using one shared timestamp, e.g. `20260514-005404`, so files from the same run share the same suffix.
+
+### 10.1 Output files (`full` + `--track-gpu` + `--snapshot-all-gpus`)
+
+| Filename pattern | Written when | What it contains |
+|------------------|----------------|------------------|
+| `meta_<ts>.json` | Every run; **updated twice** if `--snapshot-all-gpus` | Run metadata: `ts`, `model`, `base_url`, `instant_mode`, `thinking_mode`, `assignment_platform`, `gpu_device_index`, `rubric_mapping`, `server_parallelism_note`. With `--snapshot-all-gpus`: `gpus_all_at_start` (before suites) and `gpus_all_at_end` (after suites, same file overwritten). |
+| `latency_<ts>.json` | `latency` or `full` | One suite object: `suite` (`latency_sweep`), `rows[]` — per prefill target: TTFT, decode TPS, VRAM snapshots, `assignment_labels` per row. |
+| `concurrency_mixed_<ts>.json` | `concurrency` or `full` (default modes include `mixed`) | `suite` (`concurrency_sweep`), `prefill_tokens`, `rows[]` for **mixed** mode (long-prefill parallel load). |
+| `concurrency_chat_<ts>.json` | `concurrency` or `full` | Same shape; **chat** mode rows (`concurrent_chat_sessions` in rubric). |
+| `concurrency_code_<ts>.json` | `concurrency` or `full` | Same shape; **code** mode rows (`parallel_code_generation` in rubric). |
+| `sustained_<ts>.json` | `sustained` or `full` | Steady-load aggregate: duration, concurrency, completion count, error rate, decode TPS, TTFT stats, top-level `assignment_labels`. |
+| `gpu_<ts>.json` | Only with `--track-gpu` | NVML time-series summary for `--gpu-device`: `series_summary` (`util_gpu_mean/max`, `mem_used_mib_mean/max`, etc.). |
+| `summary_<ts>.json` | Every run | **Roll-up**: `meta` (final version after end snapshots), `suites[]` (latency + each concurrency + sustained objects), and `gpu` if `--track-gpu` was set. |
+
+**Partial runs:** `latency` writes only `meta_*`, `latency_*`, `summary_*` (and `gpu_*` if tracked). `concurrency` omits latency/sustained files. `sustained` omits latency/concurrency files. Only `full` produces all seven suite-related files plus one `summary_*`.
+
+### 10.2 Rubric scenario → where to look
+
+Assignment-style scenarios map to **files** and to **`assignment_labels`** on rows (or on the sustained object).
+
+| Benchmarking scenario (rubric) | Primary file | How to locate in JSON |
+|--------------------------------|--------------|-------------------------|
+| **Single-user inference** — short prompts up to 1k | `latency_<ts>.json` | Row with `assignment_labels` containing `short_prompt_up_to_1k` (default target 1024). |
+| **Single-user inference** — medium prompts up to 8k | `latency_<ts>.json` | Row with `medium_prompt_up_to_8k` (default 8192). |
+| **Single-user inference** — long / heavy prefill | `latency_<ts>.json` | Row with `long_context_prompt_heavy_prefill` (large prefill targets in the sweep). |
+| **Long-context evaluation** — 32k class | `latency_<ts>.json` | Row with `long_context_evaluation_32k` (default prefill band includes 32768). |
+| **Long-context evaluation** — 64k class | `latency_<ts>.json` | Row with `long_context_evaluation_64k` (default 65536). |
+| **Long-context evaluation** — 128k class | `latency_<ts>.json` | Row with `long_context_evaluation_128k` (default 131072). |
+| **Multi-user inference** — concurrent chat sessions | `concurrency_chat_<ts>.json` | Each `rows[]` entry includes `concurrent_chat_sessions` in `assignment_labels`. |
+| **Multi-user inference** — parallel code generation | `concurrency_code_<ts>.json` | Rows include `parallel_code_generation`. |
+| **Multi-user inference** — parallel long-prefill / mixed load | `concurrency_mixed_<ts>.json` | Rows include `parallel_requests_long_prefill`. |
+| **Multi-user inference** — sustained throughput testing | `sustained_<ts>.json` | Top-level `assignment_labels` includes `sustained_throughput_testing`. |
+| **System metrics** — all GPUs at start/end | `meta_<ts>.json` (and `summary_<ts>.json` → `meta`) | Arrays `gpus_all_at_start`, `gpus_all_at_end` (requires `--snapshot-all-gpus`). |
+| **System metrics** — one GPU over time | `gpu_<ts>.json` | `series_summary` (requires `--track-gpu`). |
+
+The same suite payloads appear inside `summary_<ts>.json` under `suites[]` (order: latency, then each concurrency mode in `--concurrency-modes` order, then sustained).
+
+### 10.3 Top-level JSON shape per file
+
+| File | Top-level keys (conceptually) |
+|------|-------------------------------|
+| `meta_<ts>.json` | Metadata fields listed in §10.1; optional `gpus_all_at_start` / `gpus_all_at_end`. |
+| `latency_<ts>.json` | `suite`, `rows`. |
+| `concurrency_*_<ts>.json` | `suite`, `prefill_tokens`, `rows`. |
+| `sustained_<ts>.json` | `suite`, `assignment_labels`, duration/concurrency counters, aggregates, `decode_tps`, TTFT fields. |
+| `gpu_<ts>.json` | `series_summary`. |
+| `summary_<ts>.json` | `meta`, `suites` (array of suite objects), optional `gpu`. |
+
+For a single place to archive or share a **full** run, use **`summary_<ts>.json`** plus the standalone copies of each suite file (they are duplicates of the objects inside `suites[]`, written for easy diffing and smaller per-topic files).
