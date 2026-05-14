@@ -35,10 +35,10 @@ else
 fi
 
 if [[ "${SKIP_SGLANG}" != "1" ]]; then
-  echo "[4/6] Installing SGLang..."
-  if ! pip install "sglang[all]"; then
+  echo "[4/6] Installing SGLang (>=0.5.10.post1, required by Kimi-K2.6)..."
+  if ! pip install "sglang[all]>=0.5.10.post1"; then
     echo "sglang[all] failed; retrying with base sglang (install optional extras manually if needed)."
-    pip install "sglang"
+    pip install "sglang>=0.5.10.post1"
   fi
 else
   echo "[4/6] Skipping sglang install (SKIP_SGLANG=1)."

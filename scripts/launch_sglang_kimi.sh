@@ -19,7 +19,7 @@ TP_SIZE="${TP_SIZE:-8}"
 DP_SIZE="${DP_SIZE:-1}"
 MAX_RUNNING_REQUESTS="${MAX_RUNNING_REQUESTS:-256}"
 TRUST_REMOTE_CODE="${TRUST_REMOTE_CODE:-1}"
-REASONING_PARSER="${REASONING_PARSER:-kimi}"
+REASONING_PARSER="${REASONING_PARSER:-kimi_k2}"
 TOOL_CALL_PARSER="${TOOL_CALL_PARSER:-kimi_k2}"
 # Optional explicit quantization (leave empty for auto); examples: compressed-tensors, awq
 QUANTIZATION="${QUANTIZATION:-}"
